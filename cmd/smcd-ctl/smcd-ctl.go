@@ -7,7 +7,7 @@ import (
 
 func main() {
 	if len(os.Args) < 2 {
-		log.Default().Fatalln("Please provide a sub-command: start,stop,status")
+		log.Fatalln("Please provide a sub-command: start,stop,status")
 	}
 
 	switch os.Args[1] {
@@ -16,6 +16,6 @@ func main() {
 	case "stop":
 
 	default:
-		log.Default().Fatalf("Invalid sub-command: %s", os.Args[1])
+		log.Fatalf("Invalid sub-command: %s", os.Args[1])
 	}
 }

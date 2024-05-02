@@ -11,40 +11,58 @@ import (
 var WorkingDir string
 
 type Server struct {
-	Name   string
-	Folder string
-	Pid    int
+	Name    string
+	Folder  string
+	Enabled bool
+
+	Running bool
+	Pid     int
 }
 
 func (server *Server) Start() {
 	log.Printf("Starting server: %s", server.Name)
-	//TODO check if server is already running under screen identifier
-	cmd := exec.Command("/usr/bin/screen", "-dmS", buildScreenId(server), server.startScript())
+	//TODO check if server is already running under tmux session name
+	log.Println(startCommand(server))
+	cmd := exec.Command("/usr/bin/tmux", startCommand(server)...)
 
 	err := cmd.Run()
-	server.Pid = cmd.Process.Pid
-
 	if err != nil {
-		log.Fatalf("Could not start server: %s\n%v", server.Name, err)
+		log.Fatalf("Could not start server (%s): %v\n %v", server.Name, err, cmd.Stdout)
 	}
 
-	log.Println("Server started.")
+	server.Pid = cmd.Process.Pid
+	server.Running = true
+
+	log.Printf("Server started: %s", server.Name)
 }
 
 func (server *Server) Stop() {
 	log.Printf("Stopping server: %s", server.Name)
-	cmd := exec.Command("/usr/bin/screen", "-S", buildScreenId(server), "-X", "stuff", "stop^M")
-
-	err := cmd.Run()
+	err := SendCommand(server, "stop")
 	if err != nil {
-		log.Fatalf("Could not stop server: %s\n%+v", server.Name, err)
+		log.Printf("Could not stop server: %s\n%#v", server.Name, err)
 	}
 
 	log.Println("Server stopped.")
 }
 
-func (server *Server) startScript() string {
-	return server.Folder + "/start.sh"
+func SendCommand(server *Server, command string) error {
+	cmd := exec.Command("/usr/bin/tmux", "send-keys", "-t", buildTmuxId(server), command, "ENTER")
+
+	err := cmd.Run()
+	if err != nil {
+		log.Printf("Error when running command (%s) for server (%s):\n%v", command, server.Name, err)
+		return err
+	}
+
+	return nil
+}
+
+func startCommand(server *Server) []string {
+	return []string{"new", "-d",
+		"-s", buildTmuxId(server),
+		"-c", server.Folder,
+		fmt.Sprintf("'%s/start.sh'", server.Folder)}
 }
 
 func DiscoverServers() []*Server {
@@ -81,6 +99,6 @@ func DiscoverServers() []*Server {
 	return servers
 }
 
-func buildScreenId(server *Server) string {
+func buildTmuxId(server *Server) string {
 	return fmt.Sprintf("smcd-%s", server.Name)
 }

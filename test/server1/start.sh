@@ -1,1 +1,1 @@
-ncat -l -k 25565
+exec java -Xmx1024M -Xms1024M -jar server.jar nogui

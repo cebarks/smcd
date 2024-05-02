@@ -26,13 +26,13 @@ func main() {
 
 	servers := smcd.DiscoverServers()
 
-	if len(servers) == 0 {
-		log.Fatal("No servers detected. Exiting.")
-	}
-
-	log.Printf("Found %v Servers:\n", len(servers))
-	for _, s := range servers {
-		log.Printf("- %s\n", s.Folder)
+	if len(servers) > 0 {
+		log.Printf("Found %v Servers:\n", len(servers))
+		for _, s := range servers {
+			log.Printf("- %s\n", s.Folder)
+		}
+	} else {
+		log.Println("No servers detected in SMCD_DIR.")
 	}
 
 	router := setupRouter(servers)
@@ -96,5 +96,30 @@ func StopServers(servers []*smcd.Server) {
 	log.Println("Stopping servers...")
 	for _, server := range servers {
 		server.Stop()
+		// var wg sync.WaitGroup
+
+		// for _, server := range servers {
+		// 	wg.Add(1)
+		// 	go waitUntilExit(server, &wg)
+		// }
+
+		// wg.Wait()
 	}
 }
+
+// func waitUntilExit(server *smcd.Server, wg *sync.WaitGroup) {
+// 	defer wg.Done()
+
+// 	process, err := os.FindProcess(server.Pid)
+// 	if err == os.ErrNotExist {
+// 		log.Println("Server ded")
+// 	} else if err != nil {
+// 		log.Fatal("TODO")
+// 	}
+
+// 	state, err := process.Wait()
+// 	if err != nil {
+// 		log.Printf("Could not wait on server (%s) with pid (%v): %v", server.Name, server.Pid, err)
+// 	}
+// 	log.Printf("%+v", state)
+// }

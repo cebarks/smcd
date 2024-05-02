@@ -14,7 +14,7 @@ func init() {
 	var err error
 	smcd.WorkingDir, err = filepath.Abs("test/")
 	if err != nil {
-		log.Default().Fatalf("error setting up test dir: %v", err)
+		log.Fatalf("error setting up test dir: %v", err)
 	}
 }
 

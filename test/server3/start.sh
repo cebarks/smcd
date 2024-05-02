@@ -1,1 +1,1 @@
-ncat -l -k 25566
+echo Hello World!

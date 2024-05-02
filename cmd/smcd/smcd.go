@@ -35,9 +35,17 @@ func main() {
 			"message": "pong",
 		})
 	})
-	r.Run()
+	r.Run(":25542")
 
 	log.Default().Println("Done. Exiting.")
+}
+
+func setupRouter() *gin.Engine {
+	r := gin.Default()
+	r.GET("/ping", func(c *gin.Context) {
+		c.String(200, "pong")
+	})
+	return r
 }
 
 func StartServers(servers []*smcd.Server) {

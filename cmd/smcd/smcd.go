@@ -2,9 +2,12 @@ package main
 
 import (
 	"log"
+	"net/http"
 	"os"
 
 	"github.com/cebarks/smcd"
+
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
@@ -26,9 +29,13 @@ func main() {
 		log.Default().Printf("- %s\n", s.Folder)
 	}
 
-	StartServers(servers)
-
-	StopServers(servers)
+	r := gin.Default()
+	r.GET("/ping", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "pong",
+		})
+	})
+	r.Run()
 
 	log.Default().Println("Done. Exiting.")
 }

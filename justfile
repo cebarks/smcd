@@ -9,3 +9,6 @@ run-server:
 
 run-client:
     SMCD_DIR=test/ go run ./cmd/smcd-ctl
+
+build:
+    go build -o bin/smcd ./cmd/smcd
